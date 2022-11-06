@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     private val payloadCallback: PayloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
             payload.asBytes()?.let {
-                opponentChoice = GameChoice.valueOf(String(it, UTF_8))
+                this@MainActivity.opponentChoice = GameChoice.valueOf(String(it, UTF_8))
             }
         }
 
@@ -102,25 +102,25 @@ class MainActivity : AppCompatActivity() {
             // Determines the winner and updates game state/UI after both players have chosen.
             // Feel free to refactor and extract this code into a different method
             if (update.status == PayloadTransferUpdate.Status.SUCCESS
-                && myChoice != null && opponentChoice != null) {
-                val mc = myChoice!!
-                val oc = opponentChoice!!
+                && this@MainActivity.myChoice != null && this@MainActivity.opponentChoice != null) {
+                val mc = this@MainActivity.myChoice!!
+                val oc = this@MainActivity.opponentChoice!!
                 when {
                     mc.beats(oc) -> { // Win!
-                        binding.status.text = "${mc.name} beats ${oc.name}"
-                        myScore++
+                        this@MainActivity.binding.status.text = "${mc.name} beats ${oc.name}"
+                        this@MainActivity.myScore++
                     }
                     mc == oc -> { // Tie
-                        binding.status.text = "You both chose ${mc.name}"
+                        this@MainActivity.binding.status.text = "You both chose ${mc.name}"
                     }
                     else -> { // Loss
-                        binding.status.text = "${mc.name} loses to ${oc.name}"
-                        opponentScore++
+                        this@MainActivity.binding.status.text = "${mc.name} loses to ${oc.name}"
+                        this@MainActivity.opponentScore++
                     }
                 }
-                binding.score.text = "${myScore} : ${opponentScore}"
-                myChoice = null
-                opponentChoice = null
+                this@MainActivity.binding.score.text = "${this@MainActivity.myScore} : ${this@MainActivity.opponentScore}"
+                this@MainActivity.myChoice = null
+                this@MainActivity.opponentChoice = null
                 setGameControllerEnabled(true)
             }
         }
@@ -131,30 +131,30 @@ class MainActivity : AppCompatActivity() {
         override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
             // Accepting a connection means you want to receive messages. Hence, the API expects
             // that you attach a PayloadCall to the acceptance
-            connectionsClient.acceptConnection(endpointId, payloadCallback)
-            opponentName = "Opponent\n(${info.endpointName})"
+            this@MainActivity.connectionsClient.acceptConnection(endpointId, this@MainActivity.payloadCallback)
+            this@MainActivity.opponentName = "Opponent\n(${info.endpointName})"
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
             if (result.status.isSuccess) {
-                connectionsClient.stopAdvertising()
-                connectionsClient.stopDiscovery()
-                opponentEndpointId = endpointId
-                binding.opponentName.text = opponentName
-                binding.status.text = "Connected"
+                this@MainActivity.connectionsClient.stopAdvertising()
+                this@MainActivity.connectionsClient.stopDiscovery()
+                this@MainActivity.opponentEndpointId = endpointId
+                this@MainActivity.binding.opponentName.text = this@MainActivity.opponentName
+                this@MainActivity.binding.status.text = "Connected"
                 setGameControllerEnabled(true) // we can start playing
             }
         }
 
         override fun onDisconnected(endpointId: String) {
-            resetGame()
+            this@MainActivity.resetGame()
         }
     }
 
     // Callbacks for finding other devices
     private val endpointDiscoveryCallback = object : EndpointDiscoveryCallback() {
         override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-            connectionsClient.requestConnection(myCodeName, endpointId, connectionLifecycleCallback)
+            this@MainActivity.connectionsClient.requestConnection(this@MainActivity.myCodeName, endpointId, this@MainActivity.connectionLifecycleCallback)
         }
 
         override fun onEndpointLost(endpointId: String) {
@@ -163,41 +163,41 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        connectionsClient = Nearby.getConnectionsClient(this)
+        this.binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(this.binding.root)
+        this.connectionsClient = Nearby.getConnectionsClient(this)
 
-        binding.myName.text = "You\n(${myCodeName})"
-        binding.findOpponent.setOnClickListener {
-            startAdvertising()
-            startDiscovery()
-            binding.status.text = "Searching for opponents..."
+        this.binding.myName.text = "You\n(${this.myCodeName})"
+        this.binding.findOpponent.setOnClickListener {
+            this.startAdvertising()
+            this.startDiscovery()
+            this.binding.status.text = "Searching for opponents..."
             // "find opponents" is the opposite of "disconnect" so they don't both need to be
             // visible at the same time
-            binding.findOpponent.visibility = View.GONE
-            binding.disconnect.visibility = View.VISIBLE
+            this.binding.findOpponent.visibility = View.GONE
+            this.binding.disconnect.visibility = View.VISIBLE
         }
         // wire the controller buttons
-        binding.apply {
-            rock.setOnClickListener { sendGameChoice(GameChoice.ROCK) }
-            paper.setOnClickListener { sendGameChoice(GameChoice.PAPER) }
-            scissors.setOnClickListener { sendGameChoice(GameChoice.SCISSORS) }
+        this.binding.apply {
+            this.rock.setOnClickListener { sendGameChoice(GameChoice.ROCK) }
+            this.paper.setOnClickListener { sendGameChoice(GameChoice.PAPER) }
+            this.scissors.setOnClickListener { sendGameChoice(GameChoice.SCISSORS) }
         }
-        binding.disconnect.setOnClickListener {
-            opponentEndpointId?.let { connectionsClient.disconnectFromEndpoint(it) }
-            resetGame()
+        this.binding.disconnect.setOnClickListener {
+            this.opponentEndpointId?.let { this.connectionsClient.disconnectFromEndpoint(it) }
+            this.resetGame()
         }
 
-        resetGame() // we are about to start a new game
+        this.resetGame() // we are about to start a new game
     }
 
     private fun startAdvertising() {
-        val options = AdvertisingOptions.Builder().setStrategy(STRATEGY).build()
+        val options = AdvertisingOptions.Builder().setStrategy(this.STRATEGY).build()
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
-        connectionsClient.startAdvertising(
-            myCodeName,
+        this.connectionsClient.startAdvertising(
+            this.myCodeName,
             packageName,
-            connectionLifecycleCallback,
+            this.connectionLifecycleCallback,
             options
         )
     }
@@ -215,12 +215,12 @@ class MainActivity : AppCompatActivity() {
 
     @CallSuper
     override fun onStop(){
-        connectionsClient.apply {
+        this.connectionsClient.apply {
             stopAdvertising()
             stopDiscovery()
             stopAllEndpoints()
         }
-        resetGame()
+        this.resetGame()
         super.onStop()
     }
 
@@ -240,21 +240,21 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
             }
-            recreate()
+            this.recreate()
         }
     }
 
     /** Sends the user's selection of rock, paper, or scissors to the opponent. */
     private fun sendGameChoice(choice: GameChoice) {
-        myChoice = choice
-        connectionsClient.sendPayload(
-            opponentEndpointId!!,
+        this.myChoice = choice
+        this.connectionsClient.sendPayload(
+            this.opponentEndpointId!!,
             Payload.fromBytes(choice.name.toByteArray(UTF_8))
         )
-        binding.status.text = "You chose ${choice.name}"
+        this.binding.status.text = "You chose ${choice.name}"
         // For fair play, we will disable the game controller so that users don't change their
         // choice in the middle of a game.
-        setGameControllerEnabled(false)
+        this.setGameControllerEnabled(false)
     }
 
     /**
@@ -262,33 +262,33 @@ class MainActivity : AppCompatActivity() {
      * prevents users from changing their minds after making a choice.
      */
     private fun setGameControllerEnabled(state: Boolean) {
-        binding.apply {
-            rock.isEnabled = state
-            paper.isEnabled = state
-            scissors.isEnabled = state
+        this.binding.apply {
+            this.rock.isEnabled = state
+            this.paper.isEnabled = state
+            this.scissors.isEnabled = state
         }
     }
 
     /** Wipes all game state and updates the UI accordingly. */
     private fun resetGame() {
         // reset data
-        opponentEndpointId = null
-        opponentName = null
-        opponentChoice = null
-        opponentScore = 0
-        myChoice = null
-        myScore = 0
+        this.opponentEndpointId = null
+        this.opponentName = null
+        this.opponentChoice = null
+        this.opponentScore = 0
+        this.myChoice = null
+        this.myScore = 0
         // reset state of views
-        binding.disconnect.visibility = View.GONE
-        binding.findOpponent.visibility = View.VISIBLE
-        setGameControllerEnabled(false)
-        binding.opponentName.text="opponent\n(none yet)"
-        binding.status.text ="..."
-        binding.score.text = ":"
+        this.binding.disconnect.visibility = View.GONE
+        this.binding.findOpponent.visibility = View.VISIBLE
+        this.setGameControllerEnabled(false)
+        this.binding.opponentName.text="opponent\n(none yet)"
+        this.binding.status.text ="..."
+        this.binding.score.text = ":"
     }
 
     private fun startDiscovery(){
-        val options = DiscoveryOptions.Builder().setStrategy(STRATEGY).build()
-        connectionsClient.startDiscovery(packageName, endpointDiscoveryCallback,options)
+        val options = DiscoveryOptions.Builder().setStrategy(this.STRATEGY).build()
+        this.connectionsClient.startDiscovery(packageName, this.endpointDiscoveryCallback,options)
     }
 }
