@@ -1,6 +1,7 @@
 package dev.seabat.android.hellonearbyconnection
 
 import android.app.Activity
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
@@ -9,6 +10,9 @@ import dev.seabat.android.hellonearbyconnections.GameChoiceEnum
 import dev.seabat.android.hellonearbyconnections.NearbyConnections
 
 class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
+    companion object {
+        const val TAG = "NEARBY_VIEWMODEL"
+    }
 
     /*
     The following variables are for tracking our own data
@@ -201,13 +205,16 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
         val oc = this.opponentChoice!!
         when {
             mc.beats(oc) -> { // Win!
+                Log.d(TAG, "Win")
                 this._statusText.value = "${mc.name} beats ${oc.name}"
                 this._myScore++
             }
             mc == oc -> { // Tie
+                Log.d(TAG, "Tie")
                 this._statusText.value = "You both chose ${mc.name}"
             }
             else -> { // Loss
+                Log.d(TAG, "Lose")
                 this._statusText.value = "${mc.name} loses to ${oc.name}"
                 this._opponentScore++
             }
