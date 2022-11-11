@@ -35,11 +35,11 @@ class NearbyConnections(builder: Builder) {
     val endPointName: String =builder.endPointName
 
     companion object {
-        val TAG = "NEARBY_CONNECTIONS"
+        const val TAG = "NEARBY_CONNECTIONS"
     }
 
     /**
-     * NearbyConnectClient の Builer クラス
+     * NearbyConnectClient の Builder クラス
      */
     class Builder(
         val listener: PlayMatchListener,
@@ -121,13 +121,13 @@ class NearbyConnections(builder: Builder) {
     }
 
     fun startDiscovery(){
-        Log.d(TAG, "startDiscovery called")
+        Log.d(TAG, "startDiscovery called [" + this.serviceId + "]")
         val options = DiscoveryOptions.Builder().setStrategy(this.STRATEGY).build()
         this.connectionsClientGetter.get().startDiscovery(this.serviceId, this.endpointDiscoveryCallback,options)
     }
 
     fun startAdvertising() {
-        Log.d(TAG, "startAdvertising called")
+        Log.d(TAG, "startAdvertising called [" + this.endPointName + " " + this.serviceId + "]")
         val options = AdvertisingOptions.Builder().setStrategy(this.STRATEGY).build()
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
         this.connectionsClientGetter.get().startAdvertising(
