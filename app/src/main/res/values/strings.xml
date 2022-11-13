@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Hello Neaby Connections</string>
+    <string name="app_name">Hello Nearby Connections</string>
+    <string name="ok">OK</string>
+    <string name="never_ask_app_permissions">
+Insufficient app permissions. Please allow permissions from the Settings app.</string>
+    <string name="denied_app_permissions">Insufficient app permissions.</string>
 </resources>

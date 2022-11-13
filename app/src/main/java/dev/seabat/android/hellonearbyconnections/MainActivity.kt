@@ -11,12 +11,14 @@ import androidx.annotation.CallSuper
 import com.google.android.gms.nearby.connection.*
 import dev.seabat.android.hellonearbyconnections.databinding.ActivityMainBinding
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.nearby.Nearby
 import dev.seabat.android.hellonearbyconnection.MainViewModel
+import dev.seabat.android.hellonearbyconnection.dialog.PermissionCheckDialog
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PermissionCheckDialog.PermissionCheckDialogListener {
     companion object {
         const val TAG = "MAIN_ACTIVITY"
     }
@@ -188,13 +190,34 @@ class MainActivity : AppCompatActivity() {
                         multipleDenied ->
                         Log.d(TAG, "multiple denied permission: $multipleDenied")
                         if (multipleDenied.isEmpty()) {
-                            //TODO: 設定アプリでの権限付与を促すダイアログを出す
+                            this.showDialogForNeverAskPermission()
                         } else {
-                            //TODO: 再起動を促すダイアログを出す
+                            this.showDialogForDeniedPermission()
                         }
                     }
                 }
             }
         }
-}
 
+    /**
+     * 設定アプリでの権限付与を誘導するダイアログを表示する
+     * TODO: 設定アプリを起動させる
+     */
+    private fun showDialogForNeverAskPermission() {
+        val newFragment = PermissionCheckDialog.newInstance(getString(R.string.never_ask_app_permissions))
+        newFragment.show(supportFragmentManager, "never_ask")
+    }
+
+    /**
+     * 設定アプリのアプリ再起動を誘導するダイアログを表示する
+     * TODO: アプリを再起動させる
+     */
+    private fun showDialogForDeniedPermission() {
+        val newFragment = PermissionCheckDialog.newInstance(getString(R.string.denied_app_permissions))
+        newFragment.show(supportFragmentManager, "denied")
+    }
+
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        // DO nothing
+    }
+}
