@@ -2,7 +2,7 @@ package dev.seabat.android.hellonearbyconnections
 
 import android.util.Log
 import com.google.android.gms.nearby.connection.*
-import dev.seabat.android.hellonearbyconnection.MainViewModel
+import dev.seabat.android.hellonearbyconnections.MainViewModel
 
 class NearbyConnections(builder: Builder) {
     interface PlayMatchListener {

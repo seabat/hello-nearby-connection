@@ -1,13 +1,10 @@
-package dev.seabat.android.hellonearbyconnection
+package dev.seabat.android.hellonearbyconnections
 
-import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
-import dev.seabat.android.hellonearbyconnections.CodenameGenerator
-import dev.seabat.android.hellonearbyconnections.GameChoiceEnum
-import dev.seabat.android.hellonearbyconnections.NearbyConnections
+import dev.seabat.android.hellonearbyconnections.NearbyConnectionsPermissionChecker
 
 class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
     companion object {
@@ -128,7 +125,23 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
             NearbyConnections.Builder(this, getter, serviceId, this.myName).create()
     }
 
-    fun findOpponent() {
+    /**
+     * Nearby Connection API を使用するために必要なパーミッションをリクエストする
+     */
+    fun requestNearbyConnectionPermission(checker: NearbyConnectionsPermissionChecker) {
+        checker.check { result ->
+            if(result == NearbyConnectionsPermissionChecker.Result.GRANTED){
+                this.findOpponent()
+            }
+        }
+    }
+
+    /**
+     * Nearby Connection で相手に接続する
+     * NOTE: Nearby Connection の接続開始時は毎回パーミッションをチェックを実施し、
+     *       パーミッションチェック後に接続を開始する
+     */
+    private fun findOpponent() {
         this.nearbyConnections?.startDiscovery()
         this.nearbyConnections?.startAdvertising()
         this._statusText.value = "Searching for opponents..."
