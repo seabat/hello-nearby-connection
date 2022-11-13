@@ -119,8 +119,9 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
      */
     private var nearbyConnections: NearbyConnections? = null
 
-    fun setupNearbyConnections(activity: Activity) {
-        this.nearbyConnections = NearbyConnections.Builder(activity, this, this.myName).create()
+    fun setupNearbyConnections(serviceId: String, getter: NearbyConnections.ConnectionsClientGetter) {
+        this.nearbyConnections =
+            NearbyConnections.Builder(this, getter, serviceId, this.myName).create()
     }
 
     fun findOpponent() {

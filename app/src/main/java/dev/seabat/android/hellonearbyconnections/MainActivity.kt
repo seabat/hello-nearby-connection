@@ -11,6 +11,7 @@ import dev.seabat.android.hellonearbyconnections.databinding.ActivityMainBinding
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.nearby.Nearby
 import dev.seabat.android.hellonearbyconnection.MainViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -26,18 +27,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
 
+    private lateinit var connectionsClient: ConnectionsClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        this.viewModel.setupNearbyConnections(this)
         this.binding = ActivityMainBinding.inflate(layoutInflater)
+        this.connectionsClient = Nearby.getConnectionsClient(this)
+
         setContentView(this.binding.root)
 
+        this.setupRepository()
         this.setupDisplay()
         this.setupListener()
         this.setupObserver()
 
         this.viewModel.resetGame() // we are about to start a new game
+    }
+
+    private fun setupRepository() {
+        this.viewModel.setupNearbyConnections(this.packageName) { this@MainActivity.connectionsClient }
     }
 
     private fun setupDisplay() {
