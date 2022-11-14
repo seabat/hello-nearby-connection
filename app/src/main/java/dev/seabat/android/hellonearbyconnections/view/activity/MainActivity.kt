@@ -1,4 +1,4 @@
-package dev.seabat.android.hellonearbyconnections
+package dev.seabat.android.hellonearbyconnections.view.activity
 
 import android.os.Bundle
 import android.view.View
@@ -10,14 +10,20 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.nearby.Nearby
-import dev.seabat.android.hellonearbyconnections.MainViewModel
-import dev.seabat.android.hellonearbyconnections.NearbyConnectionsPermissionChecker
-import dev.seabat.android.hellonearbyconnections.dialog.PermissionCheckDialog
+import dev.seabat.android.hellonearbyconnections.model.game.GameChoiceEnum
+import dev.seabat.android.hellonearbyconnections.viewmodel.MainViewModel
+import dev.seabat.android.hellonearbyconnections.model.neaby.NearbyConnectionsPermissionChecker
+import dev.seabat.android.hellonearbyconnections.view.dialog.PermissionCheckDialog
 
 class MainActivity : AppCompatActivity(), PermissionCheckDialog.PermissionCheckDialogListener {
+    // objects
+
     companion object {
         const val TAG = "MAIN_ACTIVITY"
     }
+
+
+    // properties
 
     private lateinit var binding: ActivityMainBinding
 
@@ -26,6 +32,9 @@ class MainActivity : AppCompatActivity(), PermissionCheckDialog.PermissionCheckD
     private lateinit var connectionsClient: ConnectionsClient
 
     private lateinit var permissionChecker: NearbyConnectionsPermissionChecker
+
+
+    // methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

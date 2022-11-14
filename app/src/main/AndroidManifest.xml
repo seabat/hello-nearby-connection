@@ -25,7 +25,7 @@
         android:theme="@style/Theme.HelloNeabyConnection"
         tools:targetApi="31">
         <activity
-            android:name="dev.seabat.android.hellonearbyconnections.MainActivity"
+            android:name="dev.seabat.android.hellonearbyconnections.view.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

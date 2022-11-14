@@ -1,14 +1,23 @@
-package dev.seabat.android.hellonearbyconnections
+package dev.seabat.android.hellonearbyconnections.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
+import dev.seabat.android.hellonearbyconnections.model.game.CodenameGenerator
+import dev.seabat.android.hellonearbyconnections.model.game.GameChoiceEnum
+import dev.seabat.android.hellonearbyconnections.model.neaby.NearbyConnections
+import dev.seabat.android.hellonearbyconnections.model.neaby.NearbyConnectionsPermissionChecker
 
 class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
+    // objects
+
     companion object {
         const val TAG = "NEARBY_VIEWMODEL"
     }
+
+
+    // properties
 
     /*
     The following variables are for tracking our own data
@@ -118,6 +127,9 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
      * Nearby Connection API を操作するクラス
      */
     private var nearbyConnections: NearbyConnections? = null
+
+
+    // methods
 
     fun setupNearbyConnections(serviceId: String, getter: NearbyConnections.ConnectionsClientReferCallback) {
         this.nearbyConnections =

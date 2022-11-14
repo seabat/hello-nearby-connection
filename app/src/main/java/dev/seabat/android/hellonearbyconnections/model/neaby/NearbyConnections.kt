@@ -1,9 +1,13 @@
-package dev.seabat.android.hellonearbyconnections
+package dev.seabat.android.hellonearbyconnections.model.neaby
 
 import android.util.Log
 import com.google.android.gms.nearby.connection.*
+import dev.seabat.android.hellonearbyconnections.model.game.GameChoiceEnum
+import dev.seabat.android.hellonearbyconnections.viewmodel.MainViewModel
 
 class NearbyConnections(builder: Builder) {
+    // interfaces
+
     interface PlayMatchListener {
         fun onReceiveOpponentChoice(biteArray: ByteArray)
         fun onJudgeIfPossible()
@@ -15,6 +19,16 @@ class NearbyConnections(builder: Builder) {
     fun interface ConnectionsClientReferCallback {
         fun referTo(): ConnectionsClient
     }
+
+
+    // objects
+
+    companion object {
+        const val TAG = "NEARBY_CONNECTIONS"
+    }
+
+
+    // properties
 
     private val referCallback: ConnectionsClientReferCallback = builder.referCallback
 
@@ -35,23 +49,6 @@ class NearbyConnections(builder: Builder) {
      * エンドポイント名。人が認識できる名前。
      */
     val endPointName: String =builder.endPointName
-
-    companion object {
-        const val TAG = "NEARBY_CONNECTIONS"
-    }
-
-    /**
-     * NearbyConnectClient の Builder クラス
-     */
-    class Builder(
-        val listener: PlayMatchListener,
-        val referCallback: ConnectionsClientReferCallback,
-        val serviceId: String,
-        val endPointName: String) {
-        fun create(): NearbyConnections {
-            return NearbyConnections(this)
-        }
-    }
 
     /**
      * Strategy for telling the Nearby Connections API how we want to discover and connect to
@@ -121,6 +118,25 @@ class NearbyConnections(builder: Builder) {
         override fun onEndpointLost(endpointId: String) {
         }
     }
+
+
+    // classes
+
+    /**
+     * NearbyConnectClient の Builder クラス
+     */
+    class Builder(
+        val listener: PlayMatchListener,
+        val referCallback: ConnectionsClientReferCallback,
+        val serviceId: String,
+        val endPointName: String) {
+        fun create(): NearbyConnections {
+            return NearbyConnections(this)
+        }
+    }
+
+
+    // methods
 
     fun startDiscovery(){
         Log.d(TAG, "startDiscovery called [" + this.serviceId + "]")

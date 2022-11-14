@@ -1,4 +1,4 @@
-package dev.seabat.android.hellonearbyconnections.dialog
+package dev.seabat.android.hellonearbyconnections.view.dialog
 
 import android.app.Dialog
 import android.content.Context

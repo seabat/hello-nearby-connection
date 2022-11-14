@@ -1,4 +1,4 @@
-package dev.seabat.android.hellonearbyconnections
+package dev.seabat.android.hellonearbyconnections.model.game
 
 import java.util.Random
 

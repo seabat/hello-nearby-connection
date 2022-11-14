@@ -1,4 +1,4 @@
-package dev.seabat.android.hellonearbyconnections
+package dev.seabat.android.hellonearbyconnections.model.game
 
 /**
  * Enum class for defining the winning rules for Rock-Paper-Scissors. Each player will make a

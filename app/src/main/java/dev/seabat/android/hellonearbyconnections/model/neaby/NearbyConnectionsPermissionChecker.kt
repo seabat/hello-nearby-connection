@@ -1,4 +1,4 @@
-package dev.seabat.android.hellonearbyconnections
+package dev.seabat.android.hellonearbyconnections.model.neaby
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -7,7 +7,8 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import dev.seabat.android.hellonearbyconnections.dialog.PermissionCheckDialog
+import dev.seabat.android.hellonearbyconnections.R
+import dev.seabat.android.hellonearbyconnections.view.dialog.PermissionCheckDialog
 
 /**
  * Nearby Connection API を使用するために必要な permission をチェック・取得する
@@ -67,7 +68,7 @@ class NearbyConnectionsPermissionChecker(referCallback: ActivityReferCallback) {
      */
     private var checkListener: PermissionCheckListener? = null
 
-    private val referCallback:ActivityReferCallback
+    private val referCallback: ActivityReferCallback
 
     /**
      * Activity
