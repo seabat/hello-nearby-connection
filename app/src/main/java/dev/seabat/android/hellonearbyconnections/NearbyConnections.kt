@@ -2,7 +2,6 @@ package dev.seabat.android.hellonearbyconnections
 
 import android.util.Log
 import com.google.android.gms.nearby.connection.*
-import dev.seabat.android.hellonearbyconnections.MainViewModel
 
 class NearbyConnections(builder: Builder) {
     interface PlayMatchListener {
@@ -13,16 +12,19 @@ class NearbyConnections(builder: Builder) {
         fun onDisconnectWithOpponent()
     }
 
-    fun interface ConnectionsClientGetter {
-        fun get(): ConnectionsClient
+    fun interface ConnectionsClientReferCallback {
+        fun referTo(): ConnectionsClient
     }
 
-    /**
-     * Our handle to the [Nearby Connections API][ConnectionsClient].
-     */
-    private val connectionsClientGetter: ConnectionsClientGetter = builder.getter
+    private val referCallback: ConnectionsClientReferCallback = builder.referCallback
 
     private val playMatchListener: PlayMatchListener = builder.listener
+
+    /**
+     * [Nearby Connections API][ConnectionsClient]
+     * NOTE: コードを短縮するための読み取り専用プロパティ
+     */
+    private val connectionsClient get() = this.referCallback.referTo()
 
     /**
      * advertise / discover する際の ID
@@ -43,7 +45,7 @@ class NearbyConnections(builder: Builder) {
      */
     class Builder(
         val listener: PlayMatchListener,
-        val getter: ConnectionsClientGetter,
+        val referCallback: ConnectionsClientReferCallback,
         val serviceId: String,
         val endPointName: String) {
         fun create(): NearbyConnections {
@@ -87,15 +89,15 @@ class NearbyConnections(builder: Builder) {
             Log.d(TAG, "onConnectionInitiated called [endpoint: " + endpointId + ", digits: " + info.authenticationDigits + "]")
             // Accepting a connection means you want to receive messages. Hence, the API expects
             // that you attach a PayloadCall to the acceptance
-            this@NearbyConnections.connectionsClientGetter.get().acceptConnection(endpointId, this@NearbyConnections.payloadCallback)
+            this@NearbyConnections.connectionsClient.acceptConnection(endpointId, this@NearbyConnections.payloadCallback)
             this@NearbyConnections.playMatchListener.onReceiveOpponentName(info.endpointName)
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
             Log.d(TAG, "onConnectionResult called [endpoint: " + endpointId + ", status: " + result.status + "]")
             if (result.status.isSuccess) {
-                this@NearbyConnections.connectionsClientGetter.get().stopAdvertising()
-                this@NearbyConnections.connectionsClientGetter.get().stopDiscovery()
+                this@NearbyConnections.connectionsClient.stopAdvertising()
+                this@NearbyConnections.connectionsClient.stopDiscovery()
                 this@NearbyConnections.playMatchListener.onConnectWithOpponent(endpointId)
             }
         }
@@ -110,7 +112,7 @@ class NearbyConnections(builder: Builder) {
     private val endpointDiscoveryCallback = object : EndpointDiscoveryCallback() {
         override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
             Log.d(TAG, "onEndpointFound called [endpoint: " + endpointId + ", serviceId:" + info.serviceId + "]")
-            this@NearbyConnections.connectionsClientGetter.get().requestConnection(
+            this@NearbyConnections.connectionsClient.requestConnection(
                 this@NearbyConnections.endPointName,
                 endpointId,
                 this@NearbyConnections.connectionLifecycleCallback)
@@ -123,14 +125,14 @@ class NearbyConnections(builder: Builder) {
     fun startDiscovery(){
         Log.d(TAG, "startDiscovery called [" + this.serviceId + "]")
         val options = DiscoveryOptions.Builder().setStrategy(this.STRATEGY).build()
-        this.connectionsClientGetter.get().startDiscovery(this.serviceId, this.endpointDiscoveryCallback,options)
+        this.connectionsClient.startDiscovery(this.serviceId, this.endpointDiscoveryCallback,options)
     }
 
     fun startAdvertising() {
         Log.d(TAG, "startAdvertising called [" + this.endPointName + " " + this.serviceId + "]")
         val options = AdvertisingOptions.Builder().setStrategy(this.STRATEGY).build()
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
-        this.connectionsClientGetter.get().startAdvertising(
+        this.connectionsClient.startAdvertising(
             this.endPointName,
             this.serviceId,
             this.connectionLifecycleCallback,
@@ -139,11 +141,11 @@ class NearbyConnections(builder: Builder) {
     }
 
     fun disconnectFromEndpoint(opponentId: String) {
-       this.connectionsClientGetter.get().disconnectFromEndpoint(opponentId)
+       this.connectionsClient.disconnectFromEndpoint(opponentId)
     }
 
     fun terminateConnection() {
-        this.connectionsClientGetter.get().also {
+        this.connectionsClient.also {
             it.stopAdvertising()
             it.stopDiscovery()
             it.stopAllEndpoints()
@@ -153,7 +155,7 @@ class NearbyConnections(builder: Builder) {
     /** Sends the user's selection of rock, paper, or scissors to the opponent. */
     fun sendGameChoice(choice: GameChoiceEnum, opponentEndpointId: String) {
         Log.d(MainViewModel.TAG, "sendGameChoice called")
-        this.connectionsClientGetter.get().sendPayload(
+        this.connectionsClient.sendPayload(
             opponentEndpointId,
             Payload.fromBytes(choice.name.toByteArray(Charsets.UTF_8))
         )

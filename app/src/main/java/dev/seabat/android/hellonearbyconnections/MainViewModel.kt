@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
-import dev.seabat.android.hellonearbyconnections.NearbyConnectionsPermissionChecker
 
 class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
     companion object {
@@ -120,7 +119,7 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
      */
     private var nearbyConnections: NearbyConnections? = null
 
-    fun setupNearbyConnections(serviceId: String, getter: NearbyConnections.ConnectionsClientGetter) {
+    fun setupNearbyConnections(serviceId: String, getter: NearbyConnections.ConnectionsClientReferCallback) {
         this.nearbyConnections =
             NearbyConnections.Builder(this, getter, serviceId, this.myName).create()
     }
