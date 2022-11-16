@@ -29,8 +29,6 @@ class MainActivity : AppCompatActivity(), PermissionCheckDialog.PermissionCheckD
 
     private lateinit var viewModel: MainViewModel
 
-    private lateinit var connectionsClient: ConnectionsClient
-
     private lateinit var permissionChecker: NearbyConnectionsPermissionChecker
 
 
@@ -40,21 +38,15 @@ class MainActivity : AppCompatActivity(), PermissionCheckDialog.PermissionCheckD
         super.onCreate(savedInstanceState)
         this.viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         this.binding = ActivityMainBinding.inflate(layoutInflater)
-        this.connectionsClient = Nearby.getConnectionsClient(this)
         this.permissionChecker = NearbyConnectionsPermissionChecker{ this@MainActivity }
 
         setContentView(this.binding.root)
 
-        this.setupRepository()
         this.setupDisplay()
         this.setupListener()
         this.setupObserver()
 
         this.viewModel.resetGame() // we are about to start a new game
-    }
-
-    private fun setupRepository() {
-        this.viewModel.setupNearbyConnections(this.packageName) { this@MainActivity.connectionsClient }
     }
 
     private fun setupDisplay() {

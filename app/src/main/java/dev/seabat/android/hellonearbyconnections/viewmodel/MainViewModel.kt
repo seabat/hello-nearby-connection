@@ -1,19 +1,24 @@
 package dev.seabat.android.hellonearbyconnections.viewmodel
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
+import com.google.android.gms.nearby.Nearby
 import dev.seabat.android.hellonearbyconnections.model.game.CodenameGenerator
 import dev.seabat.android.hellonearbyconnections.model.game.GameChoiceEnum
 import dev.seabat.android.hellonearbyconnections.model.neaby.NearbyConnections
 import dev.seabat.android.hellonearbyconnections.model.neaby.NearbyConnectionsPermissionChecker
 
-class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
+class MainViewModel(application: Application) : AndroidViewModel(application), NearbyConnections.PlayMatchListener {
     // objects
 
     companion object {
         const val TAG = "NEARBY_VIEWMODEL"
+        const val SERVICE_ID = "hello-nearby-connections"
     }
 
 
@@ -126,15 +131,15 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
     /**
      * Nearby Connection API を操作するクラス
      */
-    private var nearbyConnections: NearbyConnections? = null
+    private val nearbyConnections: NearbyConnections by lazy {
+        NearbyConnections.Builder(this, Nearby.getConnectionsClient(getApplication() as Context))
+            .setServiceId(SERVICE_ID)
+            .setEndPointName(this.myName)
+            .create()
+    }
 
 
     // methods
-
-    fun setupNearbyConnections(serviceId: String, getter: NearbyConnections.ConnectionsClientReferCallback) {
-        this.nearbyConnections =
-            NearbyConnections.Builder(this, getter, serviceId, this.myName).create()
-    }
 
     /**
      * Nearby Connection API を使用するために必要なパーミッションをリクエストする
@@ -153,8 +158,8 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
      *       パーミッションチェック後に接続を開始する
      */
     private fun findOpponent() {
-        this.nearbyConnections?.startDiscovery()
-        this.nearbyConnections?.startAdvertising()
+        this.nearbyConnections.startDiscovery()
+        this.nearbyConnections.startAdvertising()
         this._statusText.value = "Searching for opponents..."
         // "find opponents" is the opposite of "disconnect" so they don't both need to be
         // visible at the same time
@@ -164,20 +169,20 @@ class MainViewModel : ViewModel(), NearbyConnections.PlayMatchListener {
 
     fun disconnect() {
         this.opponentEndpointId?.let {
-            this.nearbyConnections?.disconnectFromEndpoint(it)
+            this.nearbyConnections.disconnectFromEndpoint(it)
         }
         this.resetGame()
     }
 
     fun terminateConnection() {
-        this.nearbyConnections?.terminateConnection()
+        this.nearbyConnections.terminateConnection()
     }
 
     /** Sends the user's selection of rock, paper, or scissors to the opponent. */
     fun sendGameChoice(choice: GameChoiceEnum) {
         this.opponentEndpointId?.let {
             this._myChoice = choice
-            this.nearbyConnections?.sendGameChoice(choice, this.opponentEndpointId!!)
+            this.nearbyConnections.sendGameChoice(choice, this.opponentEndpointId!!)
             this._statusText.value = "You chose ${choice.name}"
             // For fair play, we will disable the game controller so that users don't change their
             // choice in the middle of a game.

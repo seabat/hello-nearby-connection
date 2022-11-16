@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.android.gms.nearby.connection.*
 import dev.seabat.android.hellonearbyconnections.model.game.GameChoiceEnum
 import dev.seabat.android.hellonearbyconnections.viewmodel.MainViewModel
+import java.util.*
 
 class NearbyConnections(builder: Builder) {
     // interfaces
@@ -16,10 +17,6 @@ class NearbyConnections(builder: Builder) {
         fun onDisconnectWithOpponent()
     }
 
-    fun interface ConnectionsClientReferCallback {
-        fun referTo(): ConnectionsClient
-    }
-
 
     // objects
 
@@ -30,15 +27,13 @@ class NearbyConnections(builder: Builder) {
 
     // properties
 
-    private val referCallback: ConnectionsClientReferCallback = builder.referCallback
+    /**
+     * [Nearby Connections API][ConnectionsClient]
+     */
+    private val connectionsClient: ConnectionsClient = builder.connectionsClient
 
     private val playMatchListener: PlayMatchListener = builder.listener
 
-    /**
-     * [Nearby Connections API][ConnectionsClient]
-     * NOTE: コードを短縮するための読み取り専用プロパティ
-     */
-    private val connectionsClient get() = this.referCallback.referTo()
 
     /**
      * advertise / discover する際の ID
@@ -125,11 +120,17 @@ class NearbyConnections(builder: Builder) {
     /**
      * NearbyConnectClient の Builder クラス
      */
-    class Builder(
-        val listener: PlayMatchListener,
-        val referCallback: ConnectionsClientReferCallback,
-        val serviceId: String,
-        val endPointName: String) {
+    class Builder(val listener: PlayMatchListener, val connectionsClient: ConnectionsClient) {
+        var endPointName: String = UUID.randomUUID().toString()
+        var serviceId: String = "service-id"
+        fun setEndPointName(endPointName: String): Builder {
+            this.endPointName = endPointName
+            return this
+        }
+        fun setServiceId(serviceId: String): Builder{
+            this.serviceId = serviceId
+            return this
+        }
         fun create(): NearbyConnections {
             return NearbyConnections(this)
         }
